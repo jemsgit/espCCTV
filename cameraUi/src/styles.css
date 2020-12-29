@@ -1,0 +1,42 @@
+h2 {
+  text-align: center;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+}
+
+.image-view {
+  max-height: 500px;
+  max-width: 600px;
+}
+
+.image-content {
+  flex: 2 1 200px;
+  text-align: center;
+}
+
+.download-links {
+  flex: 1 1 200px;
+}
+
+.download-links a {
+  display: block;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.download-links a:hover {
+  background-color: aqua;
+}
+
+@media(max-width: 720px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .image-view {
+    max-width: 100%;
+  }
+}
