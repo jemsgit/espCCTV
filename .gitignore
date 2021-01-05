@@ -1,3 +1,4 @@
 node_modules/
 imageServer/images/*
+imageServer/videos/*
 .vscode

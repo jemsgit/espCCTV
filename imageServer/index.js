@@ -2,10 +2,11 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url');
 const path = require('path');
+const formidable = require('formidable')
 const videoService = require('./videoService');
 
 const port = 3000 || process.env.PORT;
-const host = 'localhost';
+const host = '0.0.0.0';
 
 const user = '123';
 const pass = '234';
@@ -24,23 +25,23 @@ function checkAuth(req) {
   return username === user && password === pass;
 }
 
+function respond404(res) {
+  res.statusCode = 404;
+  notFound(res);
+}
+
 function notFound(res) {
   res.end('Not found');
 }
 
 function getCapture(req, res) {
-  let stream = fs.createReadStream(path.resolve(__dirname, 'capture.jpeg'));
+  let stream = fs.createReadStream(path.resolve(__dirname, imageFolder, 'capture.jpeg'));
   stream.on('open', function () {
     stream.pipe(res);
   });
   stream.on('error', function () {
     respond404(res);
   });
-}
-
-function respond404(res) {
-  res.statusCode = 404;
-  res.end('Not found');
 }
 
 function getVideoList(req, res) {
@@ -70,19 +71,45 @@ function postCapture(req, res) {
     res.end('Not authorized');
     return;
   }
+  if (req.headers.hasOwnProperty('content-type') && req.headers['content-type'].indexOf('boundary=') > -1) {
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+      if (err) {
+        console.error(err.message);
+        return;
+      }
+      if(files.capture) {
+        let stream = fs.createReadStream(files.capture.path);
+        console.log(files.capture.path)
+        saveImageFromStream(stream, () => {
+          fs.unlink(files.capture.path, ()=> {
+            console.log('1')
+          });
+          res.end('Ok');
+        })
+      }
+    });
+  } else {
+    saveImageFromStream(req, () => {
+      res.end('Ok');
+    })
+  }
+}
+
+function saveImageFromStream(stream, cb){
   let imagedata = '';
-  req.setEncoding('binary');
-  req.on('data', function(chunk){
+  stream.setEncoding('binary');
+  stream.on('data', function(chunk){
     imagedata += chunk
   })
-  req.on('end', function(data){
+  stream.on('end', function(data){
     videoService.saveCapture(imagedata);
     fs.writeFile(path.resolve(__dirname, imageFolder, 'capture.jpeg'), imagedata, 'binary', function(err){
         if (err) throw err
-        res.end('Ok');
+        cb();
     })
   })
-  req.on('error', function(){
+  stream.on('error', function(){
     console.log('err')
   })
 }
@@ -122,7 +149,7 @@ function listener(req, res){
   }
 }
 
-let server = http.createServer(listener)
+let server = http.createServer(listener);
 server.listen(port, host, () => {
   console.log('listen')
 })

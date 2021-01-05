@@ -1,0 +1,11 @@
+{
+  "name": "imageServerUI",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "http-server src -p 8089"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

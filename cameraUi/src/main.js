@@ -1,5 +1,8 @@
+const host = 'http://localhost';
+const port = 3000;
+
 function loadLastVideos() {
-  fetch('http://localhost:3000/videoList')
+  fetch(`${host}:${port}/videoList`)
     .then((response) => {
       return response.json();
     })
@@ -10,10 +13,10 @@ function loadLastVideos() {
 }
 
 function updateLinkList(links) {
-  let html = ''
+  let html = '';
   links.map(function(link){
     let text = (new Date(parseInt(link, 10))).toLocaleString()
-    let htmlLink = '<a href="http://localhost:3000/video?id=' + link + '" target="_blank" filename="' + link +'.mp4">' + text + '</a>';
+    let htmlLink = '<a href="' + host + ':' + port + '/video?id=' + link + '" target="_blank" filename="' + link +'.mp4">' + text + '</a>';
     html += htmlLink;
   })
   document.querySelector('#links').innerHTML = html;
@@ -25,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function(){
   setInterval(function(){
     let img = document.querySelector('img');
     if(img) {
-      img.setAttribute('src', 'http://localhost:3000/capture?q=1');
+      img.setAttribute('src', `${host}:${port}/capture?q=${Math.random()}`);
     }
-  }, 2000)
+  }, 1000)
 })
