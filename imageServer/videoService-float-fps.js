@@ -4,11 +4,14 @@ const { spawn } = require("child_process");
 
 const imageFolder = 'images';
 const videoFolder = 'videos';
-const maxImagesCount = 500;
+const videoDurationInSeconds = 10*60;
 const maxFoldersCount = 5;
 const imageNameLength = 7;
+
 let currentIndex = 0;
 let currentFolder = '';
+
+subscribeOnCaptureEnd(processVideo);
 
 createNewDir().then(function(res){
   currentFolder = res;
@@ -50,11 +53,17 @@ function getFolders(folder) {
 }
 
 async function saveCapture(data) {
-  if(currentIndex > maxImagesCount) {
-    await processVideo();
-  }
+  console.log('capture');
   await writeFile(data);
   currentIndex++;
+  console.log(currentIndex);
+}
+
+function subscribeOnCaptureEnd(cb) {
+  setTimeout(async function() {
+    await cb();
+    subscribeOnCaptureEnd(cb);
+  }, videoDurationInSeconds * 1000);
 }
 
 async function processVideo() {
@@ -66,7 +75,20 @@ async function processVideo() {
 }
 
 function makeVideo(folder) {
-  const scrap = spawn('ffmpeg', ['-framerate', '1', '-i', imageFolder + '/' + folder + '/%7d.jpeg', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', videoFolder + '/' + folder + '/result.mp4'])
+  let fps = 1;
+  let files = fs.readdirSync(path.resolve(__dirname, imageFolder, folder));
+  if(!files.length) {
+    clearDirectoryImages(folder);
+    clearDirectoryVideos(folder);
+    return;
+  }
+  fps = files.length / videoDurationInSeconds;
+  console.log('fps calculation');
+  console.log(fps);
+  if(fps < 1) {
+    fps = 1;
+  }
+  const scrap = spawn('ffmpeg', ['-framerate', fps.toString(), '-i', imageFolder + '/' + folder + '/%7d.jpeg', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', videoFolder + '/' + folder + '/result.mp4'])
   scrap.stdout.on("data", data => {
     console.log(`stdout: ${data}`);
   });
@@ -84,6 +106,14 @@ function makeVideo(folder) {
 
 function clearDirectoryImages(directoryPath) {
   fs.rmdir(path.resolve(__dirname, imageFolder, directoryPath), { recursive: true }, (err) => {
+    if(err) {
+      console.error(err)
+    }
+  })
+}
+
+function clearDirectoryVideos(directoryPath) {
+  fs.rmdir(path.resolve(__dirname, videoFolder, directoryPath), { recursive: true }, (err) => {
     if(err) {
       console.error(err)
     }

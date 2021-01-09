@@ -2,14 +2,16 @@
   "name": "imageServer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start-fixed-fps": "node server.js",
+    "start": "node server-floated-fps.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "formidable": "^1.2.2"
+    "formidable": "^1.2.2",
+    "rxjs": "^6.6.3"
   }
 }

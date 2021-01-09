@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url');
 const path = require('path');
-const formidable = require('formidable')
+const formidable = require('formidable');
 const videoService = require('./videoService');
 
 const port = 3000 || process.env.PORT;
@@ -80,10 +80,8 @@ function postCapture(req, res) {
       }
       if(files.capture) {
         let stream = fs.createReadStream(files.capture.path);
-        console.log(files.capture.path)
         saveImageFromStream(stream, () => {
           fs.unlink(files.capture.path, ()=> {
-            console.log('1')
           });
           res.end('Ok');
         })
@@ -120,7 +118,7 @@ function setCORS(res) {
 	res.setHeader('Access-Control-Allow-Methods', 'GET');
 	res.setHeader('Access-Control-Allow-Headers', '*');
 }
-
+ 
 function listener(req, res){
   setCORS(res);
   let url = req.url.split('?')[0];
