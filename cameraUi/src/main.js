@@ -1,4 +1,4 @@
-const host = 'http://localhost';
+const host = '0.0.0.0';
 const port = 3000;
 
 function loadLastVideos() {
@@ -24,11 +24,4 @@ function updateLinkList(links) {
 
 document.addEventListener('DOMContentLoaded', function(){
   loadLastVideos();
-
-  setInterval(function(){
-    let img = document.querySelector('img');
-    if(img) {
-      img.setAttribute('src', `${host}:${port}/capture?q=${Math.random()}`);
-    }
-  }, 1000)
 })
